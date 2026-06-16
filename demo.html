@@ -5,10 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Risograph UI — demo</title>
 
-  <!-- Fonts (free; the system degrades gracefully without them) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Fonts — the exact @fontsource packages the system expects
+       ("Syne Variable", "IBM Plex Mono", "Noto Sans Variable"), via jsDelivr.
+       The system degrades gracefully to system-ui without them. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/syne@5/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/noto-sans@5/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5/400.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5/500.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5/700.css" />
 
   <!-- The design system itself -->
   <link rel="stylesheet" href="riso.css" />
@@ -20,7 +25,7 @@
       min-height: 100vh;
       background: var(--background);
       color: var(--foreground);
-      font-family: 'Noto Sans', system-ui, sans-serif;
+      font-family: 'Noto Sans Variable', system-ui, sans-serif;
       padding: 40px 24px 80px;
       position: relative;
       overflow-x: hidden;
@@ -34,7 +39,7 @@
     /* Registration crosshair corners */
     .riso-bg .crosshair { position: absolute; width: 48px; height: 48px; opacity: 0.4; }
     header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    h1 { font-family: 'Syne', system-ui, sans-serif; font-weight: 800; font-size: 40px; margin: 0; letter-spacing: -0.01em; }
+    h1 { font-family: 'Syne Variable', system-ui, sans-serif; font-weight: 800; font-size: 40px; margin: 0; letter-spacing: -0.01em; }
     .sub { color: var(--muted-foreground); font-size: 14px; max-width: 46ch; margin-top: 6px; }
     .strip { height: 6px; border-radius: 3px; background: var(--riso-strip); }
     section { display: flex; flex-direction: column; gap: 14px; }
@@ -42,7 +47,7 @@
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
     code { font-family: 'IBM Plex Mono', monospace; font-size: 0.88em; padding: 1px 5px; border-radius: 3px; background: color-mix(in srgb, var(--accent-orange) 12%, transparent); color: var(--accent-orange); }
     .card-body { padding: 16px; position: relative; z-index: 1; }
-    .card-title { font-family: 'Syne', system-ui, sans-serif; font-weight: 700; font-size: 16px; margin: 0 0 6px; }
+    .card-title { font-family: 'Syne Variable', system-ui, sans-serif; font-weight: 700; font-size: 16px; margin: 0 0 6px; }
     .card-text { font-size: 13px; color: var(--muted-foreground); margin: 0; }
     .swatches { display: flex; gap: 12px; flex-wrap: wrap; }
     .swatch { width: 84px; }
@@ -121,7 +126,7 @@
     .showcase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 640px) { .showcase-grid { grid-template-columns: 1fr; } }
     .misreg-hero { display: flex; align-items: center; justify-content: center; min-height: 110px; padding: 24px; border-radius: 8px; background: var(--background-2); border: 1.5px solid var(--border); }
-    .misreg-hero span { font-family: 'Syne', system-ui, sans-serif; font-weight: 800; font-size: 30px; letter-spacing: 0.02em; }
+    .misreg-hero span { font-family: 'Syne Variable', system-ui, sans-serif; font-weight: 800; font-size: 30px; letter-spacing: 0.02em; }
     .halftone-box { padding: 22px; border-radius: 8px; background: var(--background-2); border: 1.5px solid var(--border); overflow: hidden; }
     .halftone-box > * { position: relative; z-index: 1; }
 

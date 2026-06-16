@@ -4,6 +4,8 @@ A risograph print aesthetic as a real, drop-in **UI design system** — tokens, 
 
 **▶ [Live demo](https://sanchezalvarez.github.io/risograph-design-system/demo.html)** · or open [`demo.html`](./demo.html) locally (no build needed).
 
+[![Risograph UI — component showcase](./demo.png)](https://sanchezalvarez.github.io/risograph-design-system/demo.html)
+
 ## What's in here
 
 | File | What it is |

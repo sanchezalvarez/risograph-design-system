@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Risograph UI — demo</title>
+
+  <!-- Fonts (free; the system degrades gracefully without them) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- The design system itself -->
+  <link rel="stylesheet" href="riso.css" />
+
+  <style>
+    /* Page-level layout only — every component below uses riso.css classes. */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--background);
+      color: var(--foreground);
+      font-family: 'Noto Sans', system-ui, sans-serif;
+      padding: 40px 24px 80px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; position: relative; z-index: 1; }
+
+    /* Decorative drifting blob background — one per accent ink. */
+    .riso-bg { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+    .riso-bg .blob { position: absolute; border-radius: 50%; mix-blend-mode: multiply; filter: blur(48px); }
+    .dark .riso-bg .blob { mix-blend-mode: screen; }
+    /* Registration crosshair corners */
+    .riso-bg .crosshair { position: absolute; width: 48px; height: 48px; opacity: 0.4; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    h1 { font-family: 'Syne', system-ui, sans-serif; font-weight: 800; font-size: 40px; margin: 0; letter-spacing: -0.01em; }
+    .sub { color: var(--muted-foreground); font-size: 14px; max-width: 46ch; margin-top: 6px; }
+    .strip { height: 6px; border-radius: 3px; background: var(--riso-strip); }
+    section { display: flex; flex-direction: column; gap: 14px; }
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    code { font-family: 'IBM Plex Mono', monospace; font-size: 0.88em; padding: 1px 5px; border-radius: 3px; background: color-mix(in srgb, var(--accent-orange) 12%, transparent); color: var(--accent-orange); }
+    .card-body { padding: 16px; position: relative; z-index: 1; }
+    .card-title { font-family: 'Syne', system-ui, sans-serif; font-weight: 700; font-size: 16px; margin: 0 0 6px; }
+    .card-text { font-size: 13px; color: var(--muted-foreground); margin: 0; }
+    .swatches { display: flex; gap: 12px; flex-wrap: wrap; }
+    .swatch { width: 84px; }
+    .swatch .chip { height: 48px; border-radius: 6px; box-shadow: 3px 3px 0 rgba(0,0,0,0.18); }
+    .swatch .name { font-family: 'IBM Plex Mono', monospace; font-size: 10px; margin-top: 6px; color: var(--muted-foreground); }
+    label.cb { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+
+    /* Icon buttons — square, centered, on top of .btn-tactile */
+    .icon-btn { width: 26px; height: 26px; padding: 0; justify-content: center; }
+    .icon-btn svg { width: 13px; height: 13px; }
+    .toolbar {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px; border-radius: 6px;
+      background: var(--background-2); background-image: var(--noise-subtle);
+      border: 1.5px solid var(--border); box-shadow: 2px 2px 0 var(--riso-teal);
+    }
+    .tb-sep { width: 1px; height: 18px; background: var(--border-strong); margin: 0 3px; }
+    .tb-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted-foreground); width: 72px; }
+
+    /* Date trigger (custom — opens the riso calendar, not native chrome) */
+    .date-trigger { width: 170px; display: inline-flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .date-trigger .clear { display: inline-flex; opacity: 0.5; }
+    .date-trigger .clear:hover { opacity: 1; }
+
+    /* Riso calendar popover */
+    .riso-calendar {
+      position: fixed; z-index: 1000; width: 260px; padding: 10px;
+      border: 1.5px solid var(--border-strong); border-radius: 6px;
+      background: var(--background); background-image: var(--noise-subtle);
+      box-shadow: 4px 4px 0 var(--riso-teal);
+    }
+    .riso-calendar[hidden] { display: none; }
+    .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .cal-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .cal-dow { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 4px; }
+    .cal-dow span { text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+    .cal-day {
+      height: 28px; border-radius: 4px; border: 1px solid transparent; background: transparent;
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--foreground);
+      cursor: pointer; transition: transform 0.075s ease, background 0.075s ease;
+    }
+    .cal-day:hover:not(.is-selected) { background: color-mix(in srgb, var(--accent-teal) 18%, transparent); transform: scale(1.1); }
+    .cal-day.is-today { background: color-mix(in srgb, var(--accent-teal) 12%, transparent); color: var(--accent-teal); font-weight: 700; border-color: color-mix(in srgb, var(--accent-teal) 30%, transparent); }
+    .cal-day.is-selected { background: var(--accent-teal); color: #fff; font-weight: 700; }
+    .cal-day.is-empty { visibility: hidden; cursor: default; }
+    .cal-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-strong); }
+
+    /* Segmented toggle — joined btn-tactile group, one active */
+    .seg { display: inline-flex; }
+    .seg .btn-tactile { border-radius: 0; margin-left: -1.5px; }
+    .seg .btn-tactile:first-child { border-radius: 4px 0 0 4px; margin-left: 0; }
+    .seg .btn-tactile:last-child { border-radius: 0 4px 4px 0; }
+    .seg .btn-tactile-teal { position: relative; z-index: 1; }
+
+    /* Table — riso headers + tactile rows */
+    .riso-table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 12px; background: var(--background-2); background-image: var(--noise-subtle); border: 1.5px solid var(--border-strong); border-radius: 6px; overflow: hidden; box-shadow: 3px 3px 0 var(--riso-teal); }
+    .riso-table th { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); text-align: left; padding: 8px 12px; border-bottom: 1.5px solid var(--border-strong); }
+    .riso-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    .riso-table tbody tr:last-child td { border-bottom: none; }
+
+    /* Toast — offset-shadow notification */
+    .toast { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: var(--background); background-image: var(--noise-subtle); border: 1.5px solid var(--border-strong); }
+    .toast.success { box-shadow: 4px 4px 0 var(--riso-teal); }
+    .toast.error   { box-shadow: 4px 4px 0 rgba(220,38,38,0.28); }
+    .toast .ic { display: inline-flex; }
+    .toast.success .ic { color: var(--accent-teal); }
+    .toast.error .ic   { color: var(--destructive); }
+
+    /* Loading — pulsing riso dots */
+    .loading { display: inline-flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted-foreground); }
+    .loading .dots { display: inline-flex; gap: 5px; }
+    .loading .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-violet); display: block; }
+
+    /* Print-effect showcase */
+    .showcase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 640px) { .showcase-grid { grid-template-columns: 1fr; } }
+    .misreg-hero { display: flex; align-items: center; justify-content: center; min-height: 110px; padding: 24px; border-radius: 8px; background: var(--background-2); border: 1.5px solid var(--border); }
+    .misreg-hero span { font-family: 'Syne', system-ui, sans-serif; font-weight: 800; font-size: 30px; letter-spacing: 0.02em; }
+    .halftone-box { padding: 22px; border-radius: 8px; background: var(--background-2); border: 1.5px solid var(--border); overflow: hidden; }
+    .halftone-box > * { position: relative; z-index: 1; }
+
+    /* Header meta + footer */
+    .meta { margin-top: 12px; }
+    footer { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    footer .files { display: flex; flex-wrap: wrap; gap: 6px; }
+    footer p { margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted-foreground); }
+    footer a { color: var(--accent-orange); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <!-- Drifting colour-blob background (decorative, respects reduced-motion) -->
+  <div class="riso-bg" aria-hidden="true">
+    <div class="blob animate-blob-drift"   style="width:clamp(400px,35vw,820px); height:clamp(400px,35vw,820px); background:var(--accent-orange); opacity:0.12; top:-200px; right:-160px;"></div>
+    <div class="blob animate-blob-drift-b" style="width:clamp(350px,28vw,700px); height:clamp(350px,28vw,700px); background:var(--accent-teal);   opacity:0.11; bottom:-160px; left:-160px;"></div>
+    <div class="blob animate-blob-drift-c" style="width:clamp(260px,22vw,560px); height:clamp(260px,22vw,560px); background:var(--accent-violet); opacity:0.09; bottom:60px; right:-110px;"></div>
+    <div class="blob animate-blob-drift-d" style="width:clamp(180px,15vw,380px); height:clamp(180px,15vw,380px); background:var(--accent-gold);   opacity:0.08; top:34%; left:-90px;"></div>
+    <svg class="crosshair" style="top:8px; right:8px;" viewBox="0 0 48 48"><line x1="4" y1="20" x2="28" y2="20" stroke="var(--accent-teal)" stroke-width="1.5"/><line x1="16" y1="8" x2="16" y2="32" stroke="var(--accent-teal)" stroke-width="1.5"/><circle cx="16" cy="20" r="5" stroke="var(--accent-orange)" stroke-width="1" fill="none"/></svg>
+    <svg class="crosshair" style="bottom:8px; left:8px;" viewBox="0 0 48 48"><line x1="20" y1="28" x2="44" y2="28" stroke="var(--accent-orange)" stroke-width="1.5"/><line x1="32" y1="16" x2="32" y2="40" stroke="var(--accent-orange)" stroke-width="1.5"/><circle cx="32" cy="28" r="5" stroke="var(--accent-teal)" stroke-width="1" fill="none"/></svg>
+  </div>
+
+  <div class="wrap">
+
+    <header class="animate-ink-in">
+      <div>
+        <h1 class="riso-title">Risograph UI</h1>
+        <p class="sub">A risograph print aesthetic as a real, codified design system. Tokens, components, hard rules — drop-in, framework-agnostic.</p>
+        <div class="row meta">
+          <span class="tag-riso tag-riso-orange">CSS</span>
+          <span class="tag-riso tag-riso-teal">MIT</span>
+          <span class="tag-riso tag-riso-violet">no dependencies</span>
+          <span class="tag-riso">light + dark</span>
+        </div>
+      </div>
+      <button class="btn-tactile" onclick="document.documentElement.classList.toggle('dark')">◐ Toggle dark</button>
+    </header>
+
+    <div class="strip"></div>
+
+    <!-- Buttons -->
+    <section class="animate-column-in">
+      <span class="riso-section-label">Buttons</span>
+      <div class="row">
+        <button class="btn-tactile">Neutral</button>
+        <button class="btn-tactile btn-tactile-orange">Primary</button>
+        <button class="btn-tactile btn-tactile-teal">Toggle on</button>
+        <button class="btn-tactile btn-tactile-violet">Info</button>
+        <button class="btn-tactile btn-tactile-outline">Cancel</button>
+        <button class="btn-tactile" disabled>Disabled</button>
+      </div>
+    </section>
+
+    <!-- Icon toolbars -->
+    <section class="animate-column-in" style="animation-delay:40ms">
+      <span class="riso-section-label">Icon buttons &amp; toolbars</span>
+
+      <div class="row">
+        <span class="tb-label">DOC EDITOR</span>
+        <div class="toolbar">
+          <button class="btn-tactile btn-tactile-teal icon-btn" data-icon="bold" title="Bold"></button>
+          <button class="btn-tactile icon-btn" data-icon="italic" title="Italic"></button>
+          <button class="btn-tactile icon-btn" data-icon="underline" title="Underline"></button>
+          <button class="btn-tactile icon-btn" data-icon="strikethrough" title="Strikethrough"></button>
+          <span class="tb-sep"></span>
+          <button class="btn-tactile icon-btn" data-icon="heading1" title="Heading"></button>
+          <button class="btn-tactile icon-btn" data-icon="list" title="Bullet list"></button>
+          <button class="btn-tactile icon-btn" data-icon="listOrdered" title="Numbered list"></button>
+          <span class="tb-sep"></span>
+          <button class="btn-tactile icon-btn" data-icon="alignLeft" title="Align left"></button>
+          <button class="btn-tactile icon-btn" data-icon="alignCenter" title="Align center"></button>
+          <button class="btn-tactile icon-btn" data-icon="alignRight" title="Align right"></button>
+          <span class="tb-sep"></span>
+          <button class="btn-tactile icon-btn" data-icon="link" title="Link"></button>
+          <button class="btn-tactile icon-btn" data-icon="image" title="Image"></button>
+          <button class="btn-tactile icon-btn" data-icon="table" title="Table"></button>
+        </div>
+      </div>
+
+      <div class="row">
+        <span class="tb-label">SHEETS</span>
+        <div class="toolbar">
+          <button class="btn-tactile icon-btn" data-icon="plus" title="Add row"></button>
+          <button class="btn-tactile icon-btn" data-icon="undo" title="Undo"></button>
+          <button class="btn-tactile icon-btn" data-icon="redo" title="Redo"></button>
+          <span class="tb-sep"></span>
+          <button class="btn-tactile icon-btn" data-icon="bold" title="Bold"></button>
+          <button class="btn-tactile icon-btn" data-icon="italic" title="Italic"></button>
+          <button class="btn-tactile icon-btn" data-icon="strikethrough" title="Strikethrough"></button>
+          <span class="tb-sep"></span>
+          <button class="btn-tactile btn-tactile-teal icon-btn" data-icon="alignLeft" title="Align left"></button>
+          <button class="btn-tactile icon-btn" data-icon="alignCenter" title="Align center"></button>
+          <button class="btn-tactile icon-btn" data-icon="wrapText" title="Wrap text"></button>
+          <span class="tb-sep"></span>
+          <button class="btn-tactile icon-btn" data-icon="filter" title="Filter"></button>
+          <button class="btn-tactile btn-tactile-violet icon-btn" data-icon="sparkles" title="AI fill"></button>
+          <button class="btn-tactile icon-btn" data-icon="download" title="Export"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Segmented toggle -->
+    <section class="animate-column-in" style="animation-delay:60ms">
+      <span class="riso-section-label">Segmented toggle</span>
+      <div class="row">
+        <div class="seg">
+          <button class="btn-tactile btn-tactile-teal">Day</button>
+          <button class="btn-tactile">Week</button>
+          <button class="btn-tactile">Month</button>
+        </div>
+        <div class="seg">
+          <button class="btn-tactile">List</button>
+          <button class="btn-tactile btn-tactile-teal">Board</button>
+          <button class="btn-tactile">Timeline</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="animate-column-in" style="animation-delay:80ms">
+      <span class="riso-section-label">Cards</span>
+      <div class="grid">
+        <div class="card-riso riso-frame" style="border-radius:8px">
+          <div class="card-body">
+            <h3 class="card-title">Teal offset</h3>
+            <p class="card-text">Default card — noise fill, teal misregistration shadow, registration-mark corners.</p>
+          </div>
+        </div>
+        <div class="card-riso card-riso-orange" style="border-radius:8px">
+          <div class="card-body">
+            <h3 class="card-title">Orange offset</h3>
+            <p class="card-text">Same anatomy, orange ink shadow. One contrast step from the surface beneath.</p>
+          </div>
+        </div>
+        <div class="card-riso card-riso-press" style="border-radius:8px; cursor:pointer">
+          <div class="card-body">
+            <h3 class="card-title">Press me</h3>
+            <p class="card-text">Interactive card — lifts on hover, presses in on click.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table -->
+    <section class="animate-column-in" style="animation-delay:100ms">
+      <span class="riso-section-label">Table</span>
+      <table class="riso-table">
+        <thead>
+          <tr><th>Task</th><th>Status</th><th>Owner</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-tactile animate-row-in" style="animation-delay:0ms"><td>Wire up the date picker</td><td><span class="tag-riso tag-riso-teal">done</span></td><td>Ada</td></tr>
+          <tr class="row-tactile animate-row-in" style="animation-delay:60ms"><td>Audit toolbar icons</td><td><span class="tag-riso tag-riso-orange">in progress</span></td><td>Lin</td></tr>
+          <tr class="row-tactile animate-row-in" style="animation-delay:120ms"><td>Export to PDF</td><td><span class="tag-riso tag-riso-violet">review</span></td><td>Kai</td></tr>
+          <tr class="row-tactile animate-row-in" style="animation-delay:180ms"><td>Dark-mode pass</td><td><span class="tag-riso tag-riso-muted">backlog</span></td><td>Ada</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Inputs -->
+    <section class="animate-column-in" style="animation-delay:120ms">
+      <span class="riso-section-label">Inputs &amp; date picker</span>
+      <div class="row">
+        <button id="dateTrigger" class="input-riso-date date-trigger" type="button">
+          <span id="dateLabel">No date</span>
+          <span class="clear" id="dateClear" title="Clear" data-icon="x" hidden></span>
+        </button>
+        <label class="cb"><input class="riso-checkbox" type="checkbox" checked /> Checked</label>
+        <label class="cb"><input class="riso-checkbox" type="checkbox" /> Unchecked</label>
+      </div>
+      <p class="card-text" style="font-family:'IBM Plex Mono',monospace; font-size:11px">↑ click the date field — fully custom riso calendar, no native browser chrome.</p>
+    </section>
+
+    <!-- Feedback: toasts & loading -->
+    <section class="animate-column-in" style="animation-delay:140ms">
+      <span class="riso-section-label">Toasts &amp; loading</span>
+      <div class="row">
+        <div class="toast success"><span class="ic" data-icon="check"></span> Saved to canvas</div>
+        <div class="toast error"><span class="ic" data-icon="alertCircle"></span> Export failed — retry</div>
+      </div>
+      <div class="row">
+        <div class="loading">
+          <span class="dots">
+            <i class="animate-riso-pulse" style="animation-delay:0ms"></i>
+            <i class="animate-riso-pulse" style="animation-delay:200ms"></i>
+            <i class="animate-riso-pulse" style="animation-delay:400ms"></i>
+          </span>
+          AI is generating…
+        </div>
+      </div>
+    </section>
+
+    <!-- Tags & stamps -->
+    <section class="animate-column-in" style="animation-delay:160ms">
+      <span class="riso-section-label">Tags &amp; stamps</span>
+      <div class="row">
+        <span class="tag-riso">default</span>
+        <span class="tag-riso tag-riso-orange">orange</span>
+        <span class="tag-riso tag-riso-teal">teal</span>
+        <span class="tag-riso tag-riso-violet">violet</span>
+        <span class="riso-stamp" style="color:var(--accent-orange)">NEW</span>
+        <span class="riso-stamp" style="color:var(--accent-teal)">42</span>
+      </div>
+    </section>
+
+    <!-- Print effects -->
+    <section class="animate-column-in" style="animation-delay:180ms">
+      <span class="riso-section-label">Print effects</span>
+      <div class="showcase-grid">
+        <div class="misreg-hero">
+          <span class="riso-title">Misregistration</span>
+        </div>
+        <div class="halftone-box riso-noise">
+          <h3 class="card-title">Halftone &amp; grain</h3>
+          <p class="card-text">The <code>.riso-noise</code> overlay layers fractal grain + a halftone dot grid over any surface — the signature riso texture, no image assets.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Palette -->
+    <section class="animate-column-in" style="animation-delay:200ms">
+      <span class="riso-section-label">The four inks</span>
+      <div class="swatches">
+        <div class="swatch"><div class="chip" style="background:var(--accent-orange)"></div><div class="name">orange</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--accent-teal)"></div><div class="name">teal</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--accent-violet)"></div><div class="name">violet</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--accent-gold)"></div><div class="name">gold</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--background-2); box-shadow:3px 3px 0 var(--riso-teal)"></div><div class="name">paper</div></div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="strip"></div>
+      <div class="files">
+        <span class="tag-riso tag-riso-muted">riso.css</span>
+        <span class="tag-riso tag-riso-muted">DESIGN_RULES.md</span>
+        <span class="tag-riso tag-riso-muted">SKILL.md</span>
+      </div>
+      <p>Drop-in risograph design system + Claude Code skill · MIT · <a href="https://github.com/sanchezalvarez/risograph-design-system">GitHub</a> · by <a href="https://www.sanchez.sk">sanchez.sk</a></p>
+    </footer>
+
+  </div>
+
+  <!-- Riso calendar popover (positioned via JS on open) -->
+  <div id="calendar" class="riso-calendar surface-noise" hidden>
+    <div class="cal-head">
+      <button class="btn-tactile btn-tactile-outline icon-btn" id="calPrev" data-icon="chevronLeft" title="Previous month"></button>
+      <span class="cal-title" id="calTitle"></span>
+      <button class="btn-tactile btn-tactile-outline icon-btn" id="calNext" data-icon="chevronRight" title="Next month"></button>
+    </div>
+    <div class="cal-dow"></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-foot">
+      <button class="btn-tactile btn-tactile-outline" id="calToday" style="color:var(--accent-teal); font-size:10px; height:24px">Today</button>
+      <button class="btn-tactile btn-tactile-outline" id="calClear" style="color:var(--destructive); font-size:10px; height:24px">Clear</button>
+    </div>
+  </div>
+
+  <script>
+    /* ── Inline lucide icons (ISC-licensed paths, stroke style) ───────────── */
+    const ICONS = {
+      bold: '<path d="M14 12a4 4 0 0 0 0-8H6v8"/><path d="M15 20a4 4 0 0 0 0-8H6v8Z"/>',
+      italic: '<line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/>',
+      underline: '<path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" x2="20" y1="20" y2="20"/>',
+      strikethrough: '<path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" x2="20" y1="12" y2="12"/>',
+      heading1: '<path d="M4 12h8"/><path d="M4 18V6"/><path d="M12 18V6"/><path d="m17 12 3-2v8"/>',
+      list: '<line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/>',
+      listOrdered: '<line x1="10" x2="21" y1="6" y2="6"/><line x1="10" x2="21" y1="12" y2="12"/><line x1="10" x2="21" y1="18" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>',
+      alignLeft: '<line x1="21" x2="3" y1="6" y2="6"/><line x1="15" x2="3" y1="12" y2="12"/><line x1="17" x2="3" y1="18" y2="18"/>',
+      alignCenter: '<line x1="21" x2="3" y1="6" y2="6"/><line x1="17" x2="7" y1="12" y2="12"/><line x1="19" x2="5" y1="18" y2="18"/>',
+      alignRight: '<line x1="21" x2="3" y1="6" y2="6"/><line x1="21" x2="9" y1="12" y2="12"/><line x1="21" x2="7" y1="18" y2="18"/>',
+      link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+      image: '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>',
+      table: '<path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/>',
+      plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+      undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+      redo: '<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
+      wrapText: '<line x1="3" x2="21" y1="6" y2="6"/><path d="M3 12h15a3 3 0 1 1 0 6h-4"/><polyline points="16 16 14 18 16 20"/><line x1="3" x2="10" y1="18" y2="18"/>',
+      filter: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+      sparkles: '<path d="M9.94 14.06A2 2 0 0 0 8.5 12.6L2.4 11a.5.5 0 0 1 0-1L8.5 8.4A2 2 0 0 0 9.94 7L11.5.9a.5.5 0 0 1 1 0L14.06 7a2 2 0 0 0 1.44 1.44L21.6 10a.5.5 0 0 1 0 1l-6.1 1.56A2 2 0 0 0 14.06 14L12.5 20.1a.5.5 0 0 1-1 0z"/>',
+      download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+      chevronLeft: '<path d="m15 18-6-6 6-6"/>',
+      chevronRight: '<path d="m9 18 6-6-6-6"/>',
+      x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+      check: '<path d="M20 6 9 17l-5-5"/>',
+      alertCircle: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+    };
+    const SVG = (name, size) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="${size||13}" height="${size||13}">${ICONS[name]||''}</svg>`;
+    document.querySelectorAll('[data-icon]').forEach(el => {
+      el.innerHTML = SVG(el.dataset.icon, el.id === 'dateClear' ? 12 : 13);
+    });
+
+    /* ── Riso calendar ───────────────────────────────────────────────────── */
+    const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const DOW = ["Mo","Tu","We","Th","Fr","Sa","Su"];
+    const cal = document.getElementById('calendar');
+    const grid = document.getElementById('calGrid');
+    const trigger = document.getElementById('dateTrigger');
+    const label = document.getElementById('dateLabel');
+    const clearBtn = document.getElementById('dateClear');
+
+    document.querySelector('.cal-dow').innerHTML = DOW.map(d => `<span>${d}</span>`).join('');
+
+    const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const today = new Date();
+    let selected = null;            // Date | null
+    let view = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    function renderLabel() {
+      if (selected) {
+        label.textContent = `${selected.getDate()} ${MONTHS[selected.getMonth()]} ${selected.getFullYear()}`;
+        label.style.color = '';
+        clearBtn.hidden = false;
+      } else {
+        label.textContent = 'No date';
+        label.style.color = 'var(--muted-foreground)';
+        clearBtn.hidden = true;
+      }
+    }
+
+    function renderGrid() {
+      document.getElementById('calTitle').textContent = `${MONTHS[view.getMonth()]} ${view.getFullYear()}`;
+      const y = view.getFullYear(), m = view.getMonth();
+      const first = new Date(y, m, 1).getDay();
+      const offset = first === 0 ? 6 : first - 1;       // Monday-first
+      const days = new Date(y, m + 1, 0).getDate();
+      const selStr = selected ? fmt(selected) : '';
+      const todayStr = fmt(today);
+      let html = '';
+      for (let i = 0; i < offset; i++) html += '<button class="cal-day is-empty" disabled></button>';
+      for (let d = 1; d <= days; d++) {
+        const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        let cls = 'cal-day';
+        if (ds === selStr) cls += ' is-selected';
+        else if (ds === todayStr) cls += ' is-today';
+        html += `<button class="${cls}" data-date="${ds}">${d}</button>`;
+      }
+      grid.innerHTML = html;
+    }
+
+    function position() {
+      const r = trigger.getBoundingClientRect();
+      const popW = 260, popH = cal.offsetHeight || 320;
+      let left = r.left;
+      if (left + popW > window.innerWidth - 8) left = Math.max(8, window.innerWidth - popW - 8);
+      let top = r.bottom + 4;
+      if (top + popH > window.innerHeight - 8) top = Math.max(8, r.top - popH - 4);
+      cal.style.left = left + 'px';
+      cal.style.top = top + 'px';
+    }
+
+    function open() {
+      if (selected) view = new Date(selected.getFullYear(), selected.getMonth(), 1);
+      renderGrid();
+      cal.hidden = false;
+      position();
+    }
+    function close() { cal.hidden = true; }
+
+    trigger.addEventListener('click', () => { cal.hidden ? open() : close(); });
+    clearBtn.addEventListener('click', (e) => { e.stopPropagation(); selected = null; renderLabel(); });
+    document.getElementById('calPrev').addEventListener('click', () => { view.setMonth(view.getMonth()-1); renderGrid(); });
+    document.getElementById('calNext').addEventListener('click', () => { view.setMonth(view.getMonth()+1); renderGrid(); });
+    document.getElementById('calToday').addEventListener('click', () => { selected = new Date(today.getFullYear(), today.getMonth(), today.getDate()); renderLabel(); close(); });
+    document.getElementById('calClear').addEventListener('click', () => { selected = null; renderLabel(); close(); });
+    grid.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-date]');
+      if (!btn) return;
+      const [y,m,d] = btn.dataset.date.split('-').map(Number);
+      selected = new Date(y, m-1, d);
+      renderLabel(); close();
+    });
+    document.addEventListener('mousedown', (e) => {
+      if (cal.hidden) return;
+      if (cal.contains(e.target) || trigger.contains(e.target)) return;
+      close();
+    });
+    window.addEventListener('scroll', () => { if (!cal.hidden) position(); }, true);
+    window.addEventListener('resize', () => { if (!cal.hidden) position(); });
+
+    renderLabel();
+  </script>
+</body>
+</html>

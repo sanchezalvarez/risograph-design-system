@@ -37,27 +37,7 @@ Four "inks" over warm paper, each with a role: 🟠 `--accent-orange` (primary /
 
 ## Notes
 
-Plain CSS — works anywhere. Examples reference React + Tailwind v4 + Radix for the tricky bits; nothing depends on a framework (Tailwind v4: map tokens via `@theme inline`).
-
-## Fonts
-
-Three free fonts (all degrade to `system-ui` if absent):
-
-| Font | Used for | `riso.css` family | Download |
-|------|----------|-------------------|----------|
-| **Syne** | titles / display | `Syne Variable` (`.font-display`) | [Google Fonts](https://fonts.google.com/specimen/Syne) · [@fontsource](https://www.npmjs.com/package/@fontsource-variable/syne) |
-| **IBM Plex Mono** | labels, buttons, chips, tables | `IBM Plex Mono` (`.font-mono-ui`) | [Google Fonts](https://fonts.google.com/specimen/IBM+Plex+Mono) · [@fontsource](https://www.npmjs.com/package/@fontsource/ibm-plex-mono) |
-| **Noto Sans** | body text | `Noto Sans Variable` | [Google Fonts](https://fonts.google.com/specimen/Noto+Sans) · [@fontsource](https://www.npmjs.com/package/@fontsource-variable/noto-sans) |
-
-Fastest drop-in (exactly what `demo.html` uses) — paste into `<head>`:
-
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/syne@5/index.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/noto-sans@5/index.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5/400.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5/500.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5/700.css" />
-```
+Plain CSS — works anywhere. Examples reference React + Tailwind v4 + Radix for the tricky bits; nothing depends on a framework (Tailwind v4: map tokens via `@theme inline`). Fonts (Syne, IBM Plex Mono, Noto Sans) degrade to `system-ui` if absent — see [`demo.html`](./demo.html) for the exact links.
 
 ## License
 

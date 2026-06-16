@@ -137,6 +137,15 @@
     footer p { margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted-foreground); }
     footer a { color: var(--accent-orange); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
+
+    /* Fonts showcase */
+    .font-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+    .font-card { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 8px; background: var(--background-2); background-image: var(--noise-subtle); border: 1.5px solid var(--border); box-shadow: 3px 3px 0 var(--riso-teal); }
+    .font-card .sample { font-size: 30px; line-height: 1.05; color: var(--foreground); }
+    .font-card .specimen { font-size: 14px; color: var(--muted-foreground); }
+    .font-card .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted-foreground); }
+    .font-card .links { display: flex; gap: 6px; margin-top: auto; }
+    .font-card .links a { text-decoration: none; }
   </style>
 </head>
 <body>
@@ -356,6 +365,42 @@
         <div class="swatch"><div class="chip" style="background:var(--accent-violet)"></div><div class="name">violet</div></div>
         <div class="swatch"><div class="chip" style="background:var(--accent-gold)"></div><div class="name">gold</div></div>
         <div class="swatch"><div class="chip" style="background:var(--background-2); box-shadow:3px 3px 0 var(--riso-teal)"></div><div class="name">paper</div></div>
+      </div>
+    </section>
+
+    <!-- Fonts -->
+    <section class="animate-column-in" style="animation-delay:220ms">
+      <span class="riso-section-label">Fonts</span>
+      <div class="font-grid">
+        <div class="font-card">
+          <div class="sample" style="font-family:'Syne Variable',system-ui,sans-serif; font-weight:800">Syne</div>
+          <div class="specimen" style="font-family:'Syne Variable',system-ui,sans-serif; font-weight:700">AaBbCc 0123 — titles</div>
+          <div class="meta"><span class="tag-riso tag-riso-orange">display</span> <code>.font-display</code></div>
+          <div class="links">
+            <a class="btn-tactile btn-tactile-outline" href="https://fonts.google.com/specimen/Syne" target="_blank" rel="noopener">Google Fonts ↗</a>
+            <a class="btn-tactile btn-tactile-outline" href="https://www.npmjs.com/package/@fontsource-variable/syne" target="_blank" rel="noopener">@fontsource ↗</a>
+          </div>
+        </div>
+
+        <div class="font-card">
+          <div class="sample" style="font-family:'IBM Plex Mono',monospace; font-weight:600">IBM Plex Mono</div>
+          <div class="specimen" style="font-family:'IBM Plex Mono',monospace">AaBbCc 0123 — labels</div>
+          <div class="meta"><span class="tag-riso tag-riso-teal">UI mono</span> <code>.font-mono-ui</code></div>
+          <div class="links">
+            <a class="btn-tactile btn-tactile-outline" href="https://fonts.google.com/specimen/IBM+Plex+Mono" target="_blank" rel="noopener">Google Fonts ↗</a>
+            <a class="btn-tactile btn-tactile-outline" href="https://www.npmjs.com/package/@fontsource/ibm-plex-mono" target="_blank" rel="noopener">@fontsource ↗</a>
+          </div>
+        </div>
+
+        <div class="font-card">
+          <div class="sample" style="font-family:'Noto Sans Variable',system-ui,sans-serif; font-weight:700">Noto Sans</div>
+          <div class="specimen" style="font-family:'Noto Sans Variable',system-ui,sans-serif">AaBbCc 0123 — body text</div>
+          <div class="meta"><span class="tag-riso tag-riso-violet">body</span> default sans</div>
+          <div class="links">
+            <a class="btn-tactile btn-tactile-outline" href="https://fonts.google.com/specimen/Noto+Sans" target="_blank" rel="noopener">Google Fonts ↗</a>
+            <a class="btn-tactile btn-tactile-outline" href="https://www.npmjs.com/package/@fontsource-variable/noto-sans" target="_blank" rel="noopener">@fontsource ↗</a>
+          </div>
+        </div>
       </div>
     </section>
 

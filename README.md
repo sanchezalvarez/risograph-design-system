@@ -8,13 +8,19 @@ A risograph print aesthetic as a real, drop-in **UI design system** — tokens, 
 
 ## What's in here
 
-| File | What it is |
-|------|------------|
-| **`riso.css`** | Drop-in tokens + component classes. Light + dark, self-contained CSS — no build, no images, no deps. |
-| **`DESIGN_RULES.md`** | The hard numeric rules: control heights, dropdown widths, spacing, typography, anti-patterns. |
-| **`SKILL.md`** | A [Claude Code](https://claude.com/claude-code) skill — drop into `.claude/skills/risograph-ui/` and Claude audits/applies the look inline. |
-| **`risograph-ui-auditor.md`** | The same thing as a [Claude Code](https://claude.com/claude-code) **subagent** — drop into `.claude/agents/` for a dedicated full-app audit pass. |
-| **`demo.html`** | The full component set on one page. |
+The design system itself is two plain files — **`riso.css`** (drop-in tokens +
+component classes, light + dark, no build/images/deps) and **`DESIGN_RULES.md`**
+(the hard numeric ruleset). They're tool-agnostic and bundled, identical, into both
+agent folders:
+
+| Folder | For | Contains |
+|--------|-----|----------|
+| [**`claude-code/`**](./claude-code/) | [Claude Code](https://claude.com/claude-code) | `riso.css` + `DESIGN_RULES.md` · `SKILL.md` (inline skill) · `risograph-ui-auditor.md` (subagent for full-app audits) |
+| [**`codex/`**](./codex/) | [OpenAI Codex](https://github.com/openai/codex) | `riso.css` + `DESIGN_RULES.md` · `AGENTS.md` (always-on rules) · `risograph-audit.md` (`/risograph-audit` slash command) |
+
+Just want the CSS? Grab `riso.css` + `DESIGN_RULES.md` from either folder — no agent
+required. Each folder has its own README with install paths. `demo.html` is the full
+component set on one page.
 
 ## Quick start
 
@@ -27,7 +33,7 @@ A risograph print aesthetic as a real, drop-in **UI design system** — tokens, 
 <div class="card-riso card-riso-teal">…</div>
 ```
 
-Then follow [`DESIGN_RULES.md`](./DESIGN_RULES.md) for dimensions. The essentials:
+Then follow [`DESIGN_RULES.md`](./claude-code/DESIGN_RULES.md) for dimensions. The essentials:
 
 - Control heights bucket to **22 / 26 / 32px** — never mix two in one row.
 - Dropdowns with names: **`min-width: 200px`**, never `w-auto`.

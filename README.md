@@ -12,7 +12,8 @@ A risograph print aesthetic as a real, drop-in **UI design system** — tokens, 
 |------|------------|
 | **`riso.css`** | Drop-in tokens + component classes. Light + dark, self-contained CSS — no build, no images, no deps. |
 | **`DESIGN_RULES.md`** | The hard numeric rules: control heights, dropdown widths, spacing, typography, anti-patterns. |
-| **`SKILL.md`** | A [Claude Code](https://claude.com/claude-code) skill — drop into `.claude/skills/` and Claude audits/applies the look. |
+| **`SKILL.md`** | A [Claude Code](https://claude.com/claude-code) skill — drop into `.claude/skills/risograph-ui/` and Claude audits/applies the look inline. |
+| **`risograph-ui-auditor.md`** | The same thing as a [Claude Code](https://claude.com/claude-code) **subagent** — drop into `.claude/agents/` for a dedicated full-app audit pass. |
 | **`demo.html`** | The full component set on one page. |
 
 ## Quick start
